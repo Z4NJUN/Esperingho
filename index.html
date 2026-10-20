@@ -46,12 +46,55 @@ code,.mono{font-family:"IBM Plex Mono",monospace;font-size:12.5px}
 .scroll{max-height:340px;overflow:auto}
 .pre{max-height:220px}
 .empty{color:var(--mute);padding:30px 6px;text-align:center}
+.help{background:var(--panel);border:1px solid var(--line);border-radius:6px;margin:0 0 16px}
+.help summary{cursor:pointer;padding:12px 14px;font-weight:600;list-style:none}
+.help summary::-webkit-details-marker{display:none}
+.help summary::before{content:"▸ ";color:var(--accent)}
+.help[open] summary::before{content:"▾ "}
+.help summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.help .hb{padding:0 14px 14px;font-size:13.5px;border-top:1px solid var(--line)}
+.help h3{font-size:14px;margin:14px 0 4px;font-weight:600}
+.help ol,.help ul{margin:4px 0;padding-left:20px}
+.help li{margin:2px 0}
+.help p{margin:4px 0}
+.help .c{color:var(--crit);font-weight:600}.help .w{color:var(--warn);font-weight:600}.help .k{color:var(--ok);font-weight:600}
 </style>
 </head>
 <body>
 <div class="wrap">
 <h1>PNEZD POINT VALIDATOR V.1 by Esmeringhoy</h1>
 <p class="sub">Paste or load a survey point file. Everything runs in your browser. Nothing is uploaded.</p>
+<details class="help">
+<summary>How to use this tool</summary>
+<div class="hb">
+<p>Checks a survey point file for import-breaking errors and gives you a cleaned copy. Everything runs in your browser, so nothing gets uploaded.</p>
+<h3>Steps</h3>
+<ol>
+<li>Drop a file in the dashed box, tap <b>browse</b>, or paste points into the text area.</li>
+<li>Leave <b>Column order</b> on Auto-detect unless you know it’s different.</li>
+<li>Adjust the settings if needed.</li>
+<li>Tap <b>Validate points</b>.</li>
+<li>Fix the red items first, then check the orange ones.</li>
+<li>Tap <b>Copy clean data</b> and import it.</li>
+</ol>
+<p>Each line needs 5 fields: <code>point,northing,easting,elevation,description</code></p>
+<h3>Inputs</h3>
+<ul>
+<li><b>Column order:</b> Auto-detect reads the header. PNEZD means northing first. PENZD means easting first, and the tool swaps it for you.</li>
+<li><b>Elevation spike threshold (50):</b> Flags a point whose elevation is off from its same-code neighbors by more than this. Use a small number on flat ground.</li>
+<li><b>Near-duplicate distance (0.06):</b> Flags two points closer than this. Set 0 to turn it off.</li>
+<li><b>Neighbors compared (4):</b> How many same-code points are used for the spike check.</li>
+<li><b>Validate points / Clear:</b> Run the check, or reset everything.</li>
+</ul>
+<h3>Results</h3>
+<ul>
+<li><span class="c">Red (critical):</span> Header row, wrong field count, non-numeric values, duplicate point numbers, identical coordinates, swapped columns. The tool removes or fixes these in the export.</li>
+<li><span class="w">Orange (warnings):</span> Elevation spikes, blank or odd descriptions, inconsistent code spellings, near-duplicates, numbering drops. Nothing gets removed, so use your judgment.</li>
+<li><span class="k">Green (clean export):</span> PNEZD order, comma-delimited, with a header row. Delete that header line if your software doesn’t want it.</li>
+</ul>
+<p>Check the “points exported” count against your original so you know how many were dropped.</p>
+</div>
+</details>
 <div class="grid">
 <div class="box">
 <h2>Point data</h2>
