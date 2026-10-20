@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PNEZD POINT VALIDATOR V.1 by Esperingho</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f4f3;--panel:#fff;--ink:#14232b;--mute:#5d6b72;--line:#d3dad8;--crit:#c42b2b;--warn:#a65f00;--ok:#1f7a4d;--accent:#e5446d;--accent-ink:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10181c;--panel:#18242a;--ink:#e6edee;--mute:#93a2a8;--line:#2c3c43;--crit:#ff7b7b;--warn:#f0b04a;--ok:#5fd39a;--accent:#ff6b8f;--accent-ink:#10181c}}
+:root[data-theme="dark"]{--bg:#10181c;--panel:#18242a;--ink:#e6edee;--mute:#93a2a8;--line:#2c3c43;--crit:#ff7b7b;--warn:#f0b04a;--ok:#5fd39a;--accent:#ff6b8f;--accent-ink:#10181c}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:24px;margin:0 0 4px;font-weight:600}
+.sub{color:var(--mute);margin:0 0 20px}
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:16px}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px}
+.box h2{font-size:15px;margin:0 0 10px;font-weight:600}
+textarea{width:100%;height:280px;font:12.5px/1.45 "IBM Plex Mono",ui-monospace,monospace;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:8px;resize:vertical;white-space:pre;overflow:auto}
+label{display:block;font-size:13px;color:var(--mute);margin:10px 0 3px}
+select,input[type=number]{width:100%;padding:7px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:4px;font:inherit}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{font:inherit;font-weight:600;padding:9px 14px;border-radius:4px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button.go{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.drop{border:1.5px dashed var(--line);border-radius:4px;padding:10px;text-align:center;color:var(--mute);margin-bottom:10px;font-size:13px}
+.drop.on{border-color:var(--accent);color:var(--ink)}
+.sum{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.chip{flex:1;min-width:90px;border:1px solid var(--line);border-radius:4px;padding:8px 10px}
+.chip b{display:block;font-size:22px;font-family:"IBM Plex Mono",monospace;font-weight:500}
+.chip.c b{color:var(--crit)}.chip.w b{color:var(--warn)}.chip.k b{color:var(--ok)}
+.sec{border-left:4px solid var(--line);padding:2px 0 2px 12px;margin:14px 0}
+.sec.c{border-color:var(--crit)}.sec.w{border-color:var(--warn)}.sec.k{border-color:var(--ok)}
+.sec h3{margin:0 0 6px;font-size:14.5px;font-weight:600}
+.sec.c h3{color:var(--crit)}.sec.w h3{color:var(--warn)}.sec.k h3{color:var(--ok)}
+.item{padding:5px 0;border-top:1px solid var(--line);font-size:13.5px}
+.item:first-of-type{border-top:0}
+code,.mono{font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+.none{color:var(--mute);font-size:13.5px}
+.scroll{max-height:340px;overflow:auto}
+.pre{max-height:220px}
+.empty{color:var(--mute);padding:30px 6px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>PNEZD POINT VALIDATOR V.1 by Esperingho</h1>
+<p class="sub">Paste or load a survey point file. Everything runs in your browser. Nothing is uploaded.</p>
+<div class="grid">
+<div class="box">
+<h2>Point data</h2>
+<div class="drop" id="drop">Drop a .txt or .csv file here, or <label style="display:inline;color:var(--accent);cursor:pointer;margin:0;text-decoration:underline">browse<input id="file" type="file" accept=".txt,.csv,.prn,.xyz" hidden></label></div>
+<textarea id="inp" spellcheck="false" placeholder="1000,45428.017,52275.954,61.27,EA-5(SM)&#10;1001,45321.302,52352.931,62.11,EDGE-TAXIWAY"></textarea>
+<div class="row">
+<div><label for="ord">Column order</label>
+<select id="ord"><option value="auto">Auto-detect from header</option><option value="PNEZD">PNEZD (Northing first)</option><option value="PENZD">PENZD (Easting first)</option></select></div>
+<div><label for="thr">Elevation spike threshold</label><input id="thr" type="number" min="0" step="any" value="50"></div>
+</div>
+<div class="row">
+<div><label for="near">Near-duplicate distance</label><input id="near" type="number" min="0" step="any" value="0.06"></div>
+<div><label for="nn">Neighbors compared (same code)</label><input id="nn" type="number" min="2" max="12" value="4"></div>
+</div>
+<div class="bar"><button class="go" id="run">Validate points</button><button id="clr">Clear</button></div>
+</div>
+<div class="box" id="out"><div class="empty">Results show up here.</div></div>
+</div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const isNum=v=>/^[+-]?(\d+\.?\d*|\.\d+)$/.test(v);
+let cleanText='',srcName='',dl=null;
+try{(window.claude&&claude.use?claude.use('downloads'):Promise.resolve(null)).then(m=>{dl=m;const b=$('csv');if(b)b.hidden=!m}).catch(()=>{})}catch(e){}
+
+function validate(){
+  const raw=$('inp').value, thr=parseFloat($('thr').value)||50, near=parseFloat($('near').value)||0, nn=Math.max(2,parseInt($('nn').value)||4);
+  const lines=raw.split(/\r?\n/);
+  const crit=[],warn=[],info=[];
+  let order=$('ord').value, start=0;
+  const first=(lines[0]||'').trim();
+  if(first && !/^[^,]*,\s*[+-]?[\d.]+\s*,\s*[+-]?[\d.]+\s*,\s*[+-]?[\d.]+/.test(first)){
+    start=1;
+    crit.push({t:'Line 1 is a header, not a point. It would break a PNEZD import. Removed from the export.',s:first});
+    if(order==='auto'){
+      const e=first.search(/east|lon/i), n=first.search(/north|lat/i);
+      if(e>=0&&n>=0) order=e<n?'PENZD':'PNEZD';
+    }
+  }
+  if(order==='auto') order='PNEZD';
+  if(order==='PENZD') crit.push({t:'Columns are in PENZD order (Easting first). Swapped to Northing, Easting for PNEZD.'});
+
+  const pts=[],seenNum=new Map(),seenXY=new Map(),drop=new Set();
+  for(let i=start;i<lines.length;i++){
+    const l=lines[i]; if(!l.trim()) continue;
+    const ln=i+1, p=l.split(',').map(s=>s.trim());
+    if(p.length!==5){crit.push({t:`Line ${ln}: ${p.length} fields, expected 5. Removed from the export.`,s:l});continue}
+    const bad=[['Northing/Easting',p[1]],['Northing/Easting',p[2]],['Elevation',p[3]]].filter(x=>!isNum(x[1]));
+    if(!p[0]||bad.length){crit.push({t:`Line ${ln}: ${!p[0]?'blank point number':'non-numeric '+bad.map(b=>b[0]).join(', ')}. Removed from the export.`,s:l});continue}
+    let a=+p[1],b=+p[2];
+    const N=order==='PNEZD'?a:b,E=order==='PNEZD'?b:a;
+    const pt={ln,id:p[0],N,E,Z:+p[3],d:p[4],ns:order==='PNEZD'?p[1]:p[2],es:order==='PNEZD'?p[2]:p[1],zs:p[3]};
+    if(seenNum.has(pt.id)){crit.push({t:`Duplicate point number ${esc(pt.id)} on lines ${seenNum.get(pt.id)} and ${ln}. Later one removed.`});drop.add(pt);}
+    else seenNum.set(pt.id,ln);
+    const k=pt.ns+'|'+pt.es;
+    if(seenXY.has(k)&&!drop.has(pt)){const o=seenXY.get(k);crit.push({t:`Identical coordinates: point ${esc(o.id)} (line ${o.ln}) and ${esc(pt.id)} (line ${ln}) at N ${pt.ns}, E ${pt.es}. Later one removed.`});drop.add(pt);}
+    else if(!seenXY.has(k)) seenXY.set(k,pt);
+    pts.push(pt);
+  }
+  // descriptions
+  pts.forEach(p=>{
+    if(!p.d && !drop.has(p)) warn.push({t:`Point ${esc(p.id)} (line ${p.ln}): blank description.`});
+    else if(p.d && /[_\/]$/.test(p.d)) warn.push({t:`Point ${esc(p.id)} (line ${p.ln}): description <code>${esc(p.d)}</code> ends in a stray ${p.d.slice(-1)}. Check your code list.`});
+    else if(p.d.includes('/')) warn.push({t:`Point ${esc(p.id)} (line ${p.ln}): combined code <code>${esc(p.d)}</code>. May not match a single description key.`});
+  });
+  // code variants
+  const root={};pts.forEach(p=>{if(p.d){const r=p.d.replace(/\(.*$/,'').replace(/[_\W]+$/,'').toUpperCase();(root[r]=root[r]||new Set()).add(p.d)}});
+  Object.entries(root).forEach(([r,s])=>{if(s.size>1)warn.push({t:`Inconsistent code spellings for the same feature: ${[...s].map(x=>'<code>'+esc(x)+'</code>').join(', ')}.`})});
+  // near duplicates (grid)
+  if(near>0){
+    const g=new Map();pts.forEach(p=>{const k=Math.floor(p.E/ (near||1))+','+Math.floor(p.N/(near||1));(g.get(k)||g.set(k,[]).get(k)).push(p)});
+    const done=new Set();
+    pts.forEach(p=>{const cx=Math.floor(p.E/near),cy=Math.floor(p.N/near);
+      for(let x=cx-1;x<=cx+1;x++)for(let y=cy-1;y<=cy+1;y++)(g.get(x+','+y)||[]).forEach(q=>{
+        if(q.ln<=p.ln||drop.has(p)||drop.has(q))return;
+        if(p.ns===q.ns&&p.es===q.es)return;
+        const dd=Math.hypot(p.E-q.E,p.N-q.N);const key=p.ln+'-'+q.ln;
+        if(dd<near&&!done.has(key)){done.add(key);warn.push({t:`Near-duplicate: points ${esc(p.id)} and ${esc(q.id)} are ${dd.toFixed(3)} apart (${esc(p.d||'blank')} / ${esc(q.d||'blank')}).`})}})});
+  }
+  // elevation vs same-code neighbors
+  const by={};pts.forEach(p=>{if(!drop.has(p))(by[p.d]=by[p.d]||[]).push(p)});
+  let maxDev=0;const spikes=[];
+  for(const [d,L] of Object.entries(by)){
+    if(L.length<3)continue;
+    L.forEach(p=>{
+      const nb=L.filter(q=>q!==p).map(q=>[Math.hypot(p.E-q.E,p.N-q.N),q.Z]).sort((x,y)=>x[0]-y[0]).slice(0,nn).map(x=>x[1]).sort((a,b)=>a-b);
+      const med=nb.length%2?nb[(nb.length-1)/2]:(nb[nb.length/2-1]+nb[nb.length/2])/2;
+      const dev=Math.abs(p.Z-med); maxDev=Math.max(maxDev,dev);
+      if(dev>thr)spikes.push({t:`Point ${esc(p.id)} (line ${p.ln}, ${esc(d||'blank')}): Z ${p.zs} is ${dev.toFixed(2)} from its neighbors' median ${med.toFixed(2)}.`,dev});
+    });
+  }
+  spikes.sort((a,b)=>b.dev-a.dev).forEach(s=>warn.unshift(s));
+  const zs=pts.map(p=>p.Z);
+  const range=zs.length?`Z runs ${Math.min(...zs).toFixed(2)} to ${Math.max(...zs).toFixed(2)}. Largest local deviation: ${maxDev.toFixed(2)}. ${spikes.length?'':'No spikes above '+thr+'.'}`:'';
+  // numbering
+  const ints=pts.filter(p=>/^\d+$/.test(p.id)).map(p=>+p.id);
+  for(let i=1;i<ints.length;i++)if(ints[i]<ints[i-1]){warn.push({t:`Numbering drops from ${ints[i-1]} to ${ints[i]} (line ${pts.filter(p=>/^\d+$/.test(p.id))[i].ln}). Harmless, but sort if your workflow expects ascending order.`});break}
+  // clean export
+  const keep=pts.filter(p=>!drop.has(p));
+  cleanText=['POINT,NORTHING,EASTING,ELEVATION,DESCRIPTION'].concat(keep.map(p=>[p.id,p.ns,p.es,p.zs,p.d].join(','))).join('\n');
+  render({crit,warn,range,total:pts.length+crit.filter(c=>c.s!==undefined&&c.s.split(',').length!==5).length,kept:keep.length,dropped:drop.size});
+}
+
+function list(a,empty){return a.length?`<div class="scroll">${a.map(i=>`<div class="item">${i.t}${i.s?`<div class="mono" style="color:var(--mute);overflow-wrap:anywhere">${esc(i.s)}</div>`:''}</div>`).join('')}</div>`:`<div class="none">${empty}</div>`}
+
+function render(r){
+  $('out').innerHTML=`
+  <div class="sum"><div class="chip c"><b>${r.crit.length}</b>critical</div><div class="chip w"><b>${r.warn.length}</b>warnings</div><div class="chip k"><b>${r.kept}</b>points exported</div></div>
+  <div class="sec c"><h3>✕ Critical flags</h3>${list(r.crit,'No duplicate coordinates and no format breaks.')}</div>
+  <div class="sec w"><h3>! Warnings</h3>${list(r.warn,'No elevation anomalies or code problems.')}<div class="none" style="margin-top:6px">${esc(r.range)}</div></div>
+  <div class="sec k"><h3>✓ Clean export</h3>
+  <div class="none">PNEZD order, comma-delimited, with a header row. ${r.dropped?r.dropped+' duplicate point(s) removed. ':''}Descriptions are left as you wrote them.</div>
+  <textarea id="clean" class="pre" readonly style="height:200px;margin-top:8px"></textarea>
+  <div class="bar"><button class="go" id="csv" ${dl?'':'hidden'}>Export to CSV</button><button id="cp">Copy clean data</button><span id="cpm" class="none" style="align-self:center"></span></div></div>`;
+  $('clean').value=cleanText;
+  $('csv').onclick=async()=>{try{await dl.save({filename:(srcName||'points')+'_clean.csv',data:cleanText+'\r\n'});$('cpm').textContent='Saved.'}catch(e){$('cpm').textContent=e&&e.code==='declined'?'Save canceled.':'Export failed. Use Copy instead.'}};
+  $('cp').onclick=()=>{const t=$('clean');t.select();let ok=false;
+    try{ok=document.execCommand('copy')}catch(e){}
+    if(!ok&&navigator.clipboard)navigator.clipboard.writeText(cleanText).then(()=>{$('cpm').textContent='Copied.'},()=>{$('cpm').textContent='Copy blocked. Select the text and copy it manually.'});
+    else $('cpm').textContent=ok?'Copied.':'Copy blocked. Select the text and copy it manually.'};
+}
+
+$('run').onclick=()=>{if(!$('inp').value.trim()){$('out').innerHTML='<div class="empty">Paste point data or load a file first.</div>';return}validate()};
+$('clr').onclick=()=>{$('inp').value='';$('out').innerHTML='<div class="empty">Results show up here.</div>'};
+function load(f){if(!f)return;srcName=f.name.replace(/\.[^.]+$/,'');const r=new FileReader();r.onload=()=>{$('inp').value=r.result;validate()};r.readAsText(f)}
+$('file').onchange=e=>load(e.target.files[0]);
+const dz=$('drop');
+['dragover','dragenter'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('on')}));
+['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('on')}));
+dz.addEventListener('drop',e=>load(e.dataTransfer.files[0]));
+</script>
+</body>
+</html>
